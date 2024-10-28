@@ -409,6 +409,19 @@ public class Assignment2_Start_F24 {
      * <p>
      * Part C should be answered at the VERY TOP of the code in a comment
      */
+
+    /**
+     * The main method will run sorting algorithms on specified array sizes
+     * and then compare linear search performance vs. sort + binary search
+     * using a large random dataset.
+     *
+     * The main method includes two parts:
+     * 1. Part 1: Runs various sorting algorithms on different array sizes
+     * and compares their performance.
+     * 2. Part 2: Compares the performance of linear search vs. a sort followed by a binary search.
+     *
+     * @param args Command-line arguments (not used)
+     */
     public static void main(String[] args) {
         int[] arraySizes = {20, 400, 8000};
 
@@ -438,54 +451,63 @@ public class Assignment2_Start_F24 {
             testSort("fSort", unsortedArray, total_runs, Assignment2_Start_F24::fSort);
         }
 
-        // Part 2: Linear search vs Sort + Binary Search
+        // Part 2
         System.out.println("\nPart 2:");
         System.out.println("==============================================================");
 
         // Generate random array of 100,000 positive integers
-        int arraySizePart2 = 100_000;
+        int arraySizePart2 = 100000;
         Random rand = new Random();
         int[] largeArray = new int[arraySizePart2];
         for (int i = 0; i < largeArray.length; i++) {
-            largeArray[i] = rand.nextInt(1_000_000) + 1;
+            largeArray[i] = rand.nextInt(1000000) + 1;
         }
 
         // Target value to search for (not in the array)
-        int target = -1;
+        int value = -1;
 
         // Linear search
-        long startTime = System.currentTimeMillis();
-        boolean linearResult = linearSearch(largeArray, target);
-        long endTime = System.currentTimeMillis();
-        long linearSearchTime = endTime - startTime;
+        long start = System.currentTimeMillis();
+        boolean result = linearSearch(largeArray, value);
+        long end = System.currentTimeMillis();
+        long linearSearchTime = end - start;
 
-        System.out.println("Linear search took: " + linearSearchTime + " ms");
+        System.out.println("Linear search completed in: " + result + " ms");
 
         // Sort the array for binary search (use one of your sorts, e.g., eSort)
         int[] sortedArray = largeArray.clone();
-        startTime = System.currentTimeMillis();
+        start = System.currentTimeMillis();
         Assignment2_Start_F24.eSort(sortedArray);  // Use Quick Sort (eSort) or any other sort method
-        endTime = System.currentTimeMillis();
-        long sortingTime = endTime - startTime;
+        end = System.currentTimeMillis();
+        long sortingTime = end - start;
 
         // Binary search after sorting
-        startTime = System.currentTimeMillis();
-        boolean binaryResult = binarySearch(sortedArray, target);
-        endTime = System.currentTimeMillis();
-        long binarySearchTime = endTime - startTime;
+        start = System.currentTimeMillis();
+        binarySearch(sortedArray, value);  // No need to store the result if not used
+        end = System.currentTimeMillis();
+        long binarySearchTime = end - start;
 
         System.out.println("Sorting took: " + sortingTime + " ms");
         System.out.println("Binary search took: " + binarySearchTime + " ms");
 
-        // Total time for Sort + Binary Search
         long totalSortBinaryTime = sortingTime + binarySearchTime;
-        System.out.println("Total time for Sort + Binary search: " + totalSortBinaryTime + " ms");
+        System.out.println("Total time for Sort and Binary search: " + totalSortBinaryTime + " ms");
 
-        // Calculate how many linear searches are needed to justify sorting
         long linearSearchesRequired = totalSortBinaryTime / linearSearchTime;
-        System.out.println("Number of linear searches required to justify sorting: " + linearSearchesRequired);
+        System.out.println("Number of linear searches required: " + linearSearchesRequired);
+
     }
 
+
+    /**
+     * This method tests a sorting algorithm by running it multiple times,
+     * measuring execution time, counting comparisons, and validating the result.
+     *
+     * @param sorter The name of the sorting algorithm (used in the output)
+     * @param unsortedArray The array to be sorted
+     * @param totalRuns The number of times the sort should be run to get reliable results
+     * @param sortMethod A functional interface representing the sorting algorithm
+     */
 
     private static void testSort(String sorter, int[] unsortedArray, int totalRuns, SortFunction sortMethod) {
         long totalComparisons = 0;
@@ -497,13 +519,13 @@ public class Assignment2_Start_F24 {
             // Copy the original unsorted array
             int[] arrayCopy = unsortedArray.clone();
 
-            // Shuffle the array before sorting (to randomize for each run)
+            // Shuffle the array before sorting
             shuffle(arrayCopy);
 
             // Start timing
             long startTime = System.currentTimeMillis();
 
-            // Run sort and get number of comparisons
+            // Run sorting algorithm
             long comparisons = sortMethod.sort(arrayCopy);
 
             // Stop timing
@@ -513,7 +535,6 @@ public class Assignment2_Start_F24 {
             totalTime += (endTime - startTime);
             totalComparisons += comparisons;
 
-            // Validate sorted array and get checksum
             if (i == 0) {  // Only need to check checksum once
                 checksum = ckSumSorted(arrayCopy);
             }
@@ -524,7 +545,6 @@ public class Assignment2_Start_F24 {
         double avgTimeMs = totalTime / (double) totalRuns;
         double msPerCompare = totalTime / (double) totalComparisons;
 
-        // Print formatted result
         System.out.printf("%-10s", sorter);
         System.out.printf("%,10.7f ms", avgTimeMs);
         System.out.printf("%,14d ops", totalComparisons);
@@ -532,32 +552,29 @@ public class Assignment2_Start_F24 {
         System.out.printf("%,12d \n", checksum);
     }
 
-    // Part 2
-    // Linear search
-    public static boolean linearSearch(int[] array, int value) {
-        for (int i = 0; i < array.length; i++) {
-            if (array[i] == value) {
+    // Part 2, these were readily available in modules
+    public static boolean linearSearch(int[] array, int searchItem) {
+        for (int item : array) {
+            if (array[item] == searchItem) {
                 return true;
             }
         }
         return false;
     }
 
-    // Binary search
-    public static boolean binarySearch(int[] array, int value) {
+    public static int binarySearch(int[] array, int value) {
         int low = 0;
         int high = array.length - 1;
         while (low <= high) {
-            int middle = (low + high) / 2;
-            if (array[middle] == value) {
-                return true;
-            } else if (array[middle] < value) {
-                low = middle + 1;
-            } else {
-                high = middle - 1;
-            }
+            int middle = (high + low) / 2;
+            if (array[middle] == value)
+                return middle; /* Found */
+            else if (value > array[middle])
+                low = middle + 1; /* Look right */
+            else
+                high = middle - 1; /* Look left */
         }
-        return false;
+        return -1; /* End of search - not found */
     }
 
 
