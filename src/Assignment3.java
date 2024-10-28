@@ -132,11 +132,13 @@ public class Assignment3 {
      * @throws FileNotFoundException if the file cannot be found
      */
     private static int countWords(String filename, List<BookWord> wordsList) throws FileNotFoundException {
+        String regEx = "\\.|\\?|\\!|\\s|\"|\\(|\\)|\\,|\\_|\\-|\\:|\\;|\\n";
+
         File file = new File(filename);
         Scanner scanner = new Scanner(file);
-        scanner.useDelimiter("\\.|\\?|\\!|\\s|\"|\\(|\\)|\\,|\\_|\\-|\\:|\\;|\\n");
+        scanner.useDelimiter(regEx);
 
-        Map<String, BookWord> wordMap = new HashMap<>(); // Temporary storage for unique words
+        Map<String, BookWord> wordMap = new HashMap<>();
         int totalWords = 0;
 
         while (scanner.hasNext()) {
@@ -225,8 +227,8 @@ public class Assignment3 {
     private static int countNotInDictionaryBinarySearch(List<BookWord> wordsList, ArrayList<BookWord> dictionaryList) {
         int notFoundCount = 0;
         for (BookWord word : wordsList) {
-            int index = Collections.binarySearch(dictionaryList, word, (w1, w2) -> w1.getText().compareTo(w2.getText()));
-            if (index < 0) {  // A negative index indicates the word was not found
+            int index = Collections.binarySearch(dictionaryList, word, Comparator.comparing(BookWord::getText));
+            if (index < 0) {
                 notFoundCount++;
             }
         }
